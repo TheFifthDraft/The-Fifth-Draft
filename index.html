@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,986 +9,1130 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --ink: #1a1714;
-    --paper: #f5f0e8;
-    --cream: #ede7d9;
-    --rust: #b84a2e;
-    --rust-light: #e8c4bb;
-    --sage: #4a5e4d;
-    --gold: #c9a84c;
-    --muted: #7a7068;
-    --serif: 'Cormorant Garamond', Georgia, serif;
-    --mono: 'DM Mono', monospace;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--serif);
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* Custom cursor */
-  .cursor {
-    position: fixed;
-    width: 10px; height: 10px;
-    background: var(--rust);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
-  }
-  .cursor.hovered { width: 40px; height: 40px; background: var(--rust); opacity: 0.4; }
-  .cursor.light { background: var(--paper); }
-  .cursor.light.hovered { background: var(--paper); }
-  .cursor-trail {
-    position: fixed;
-    width: 4px; height: 4px;
-    background: var(--rust);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.3s ease, background 0.3s ease;
-    opacity: 0.6;
-  }
-  .cursor-trail.light { background: var(--paper); }
-
-  /* Noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.5;
-  }
-
-  /* Navigation */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 4rem;
-  }
-
-  .nav-logo {
-    font-family: var(--serif);
-    font-size: 1.1rem;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    color: var(--ink);
-    text-decoration: none;
-    transition: color 0.4s ease;
-  }
-  .nav-logo.on-dark { color: var(--paper); }
-
-  .nav-links {
-    display: flex;
-    gap: 3rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .nav-links a:hover { color: var(--rust); }
-
-  /* Hero */
-  .hero {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-left {
-    padding: 12rem 4rem 6rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-eyebrow {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 1s 0.3s forwards;
-  }
-
-  .hero-title {
-    font-size: clamp(4rem, 7vw, 7rem);
-    font-weight: 300;
-    line-height: 0.92;
-    letter-spacing: -0.02em;
-    margin-bottom: 2.5rem;
-    opacity: 0;
-    animation: fadeUp 1s 0.5s forwards;
-  }
-
-  .hero-title em {
-    font-style: italic;
-    color: var(--rust);
-  }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-    font-weight: 300;
-    line-height: 1.7;
-    color: var(--muted);
-    max-width: 38ch;
-    margin-bottom: 3.5rem;
-    opacity: 0;
-    animation: fadeUp 1s 0.7s forwards;
-  }
-
-  .hero-cta {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    opacity: 0;
-    animation: fadeUp 1s 0.9s forwards;
-  }
-
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 1.1rem 2.2rem;
-    transition: background 0.3s, transform 0.2s;
-  }
-  .btn-primary:hover { background: var(--rust); transform: translateY(-2px); }
-  .btn-primary svg { transition: transform 0.3s; }
-  .btn-primary:hover svg { transform: translate(3px, -3px); }
-
-  .btn-text {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 2px;
-    transition: color 0.3s;
-  }
-  .btn-text:hover { color: var(--rust); }
-
-  .hero-right {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-visual {
-    position: absolute;
-    inset: 0;
-    background: var(--cream);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .hero-draft-lines {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 6rem 4rem;
-    gap: 0;
-  }
-
-  .draft-line {
-    height: 1px;
-    background: rgba(26,23,20,0.12);
-    margin-bottom: 2.8rem;
-    transform-origin: left;
-    animation: lineReveal 1.5s ease forwards;
-    animation-delay: calc(var(--i) * 0.08s + 0.8s);
-    transform: scaleX(0);
-  }
-
-  .draft-word {
-    position: absolute;
-    font-family: var(--serif);
-    font-style: italic;
-    color: var(--ink);
-    opacity: 0;
-    animation: wordFade 2s forwards;
-  }
-
-  .hero-big-number {
-    position: absolute;
-    bottom: 3rem;
-    right: 3rem;
-    font-size: 16rem;
-    font-weight: 300;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(26,23,20,0.1);
-    line-height: 1;
-    font-family: var(--serif);
-    user-select: none;
-  }
-
-  .hero-scroll {
-    position: absolute;
-    bottom: 3rem;
-    left: 4rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    opacity: 0;
-    animation: fadeUp 1s 1.4s forwards;
-  }
-
-  .scroll-line {
-    width: 40px;
-    height: 1px;
-    background: var(--muted);
-  }
-
-  .scroll-text {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  /* Marquee */
-  .marquee-wrap {
-    background: var(--ink);
-    overflow: hidden;
-    padding: 1.1rem 0;
-    position: relative;
-  }
-
-  .marquee {
-    display: flex;
-    gap: 0;
-    animation: marquee 28s linear infinite;
-    white-space: nowrap;
-  }
-
-  .marquee-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 2rem;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--paper);
-    padding: 0 2rem;
-    opacity: 0.7;
-  }
-
-  .marquee-dot {
-    width: 4px;
-    height: 4px;
-    background: var(--rust);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  /* Services */
-  .services {
-    padding: 10rem 4rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-bottom: 6rem;
-    align-items: end;
-  }
-
-  .section-label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .section-label::before {
-    content: '';
-    display: block;
-    width: 30px;
-    height: 1px;
-    background: var(--rust);
-  }
-
-  .section-title {
-    font-size: clamp(2.5rem, 4vw, 4rem);
-    font-weight: 300;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-  .section-title em { font-style: italic; color: var(--rust); }
-
-  .section-desc {
-    font-size: 1.1rem;
-    font-weight: 300;
-    line-height: 1.8;
-    color: var(--muted);
-    align-self: end;
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid rgba(26,23,20,0.12);
-  }
-
-  .service-card {
-    padding: 3rem 2.5rem 3rem 2rem;
-    border-right: 1px solid rgba(26,23,20,0.12);
-    position: relative;
-    overflow: hidden;
-    transition: background 0.4s;
-  }
-
-  .service-card:last-child { border-right: none; padding-right: 0; }
-  .service-card:first-child { padding-left: 0; }
-  .service-card:nth-child(3n) { padding-right: 0; }
-
-  .service-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 2px;
-    background: var(--rust);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-  }
-  .service-card:hover::after { transform: scaleX(1); }
-
-  .service-number {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: var(--rust);
-    margin-bottom: 2rem;
-  }
-
-  .service-name {
-    font-size: 1.6rem;
-    font-weight: 400;
-    line-height: 1.2;
-    margin-bottom: 1.2rem;
-    letter-spacing: -0.01em;
-  }
-
-  .service-name em { font-style: italic; }
-
-  .service-desc {
-    font-size: 1rem;
-    font-weight: 300;
-    line-height: 1.7;
-    color: var(--muted);
-    margin-bottom: 2rem;
-  }
-
-  .service-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .tag {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.8rem;
-    border: 1px solid rgba(26,23,20,0.2);
-    color: var(--muted);
-  }
-
-  /* Process */
-  .process {
-    background: var(--ink);
-    padding: 10rem 4rem;
-    color: var(--paper);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .process::before {
-    content: 'DRAFT';
-    position: absolute;
-    right: -3rem;
-    top: 50%;
-    transform: translateY(-50%) rotate(90deg);
-    font-size: 22rem;
-    font-weight: 300;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(245,240,232,0.05);
-    letter-spacing: -0.05em;
-    pointer-events: none;
-    user-select: none;
-    font-family: var(--serif);
-  }
-
-  .process-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .process .section-label { color: var(--rust); }
-  .process .section-title { color: var(--paper); }
-  .process .section-title em { color: var(--rust); }
-
-  .process-steps {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0;
-    margin-top: 6rem;
-    position: relative;
-  }
-
-  .process-steps::before {
-    content: '';
-    position: absolute;
-    top: 2rem;
-    left: 0; right: 0;
-    height: 1px;
-    background: rgba(245,240,232,0.12);
-  }
-
-  .step {
-    padding: 4rem 2rem 0 0;
-    position: relative;
-  }
-
-  .step-dot {
-    position: absolute;
-    top: 1.6rem;
-    left: 0;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--rust);
-    transition: transform 0.3s;
-  }
-  .step:hover .step-dot { transform: scale(1.5); }
-
-  .step-number {
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--rust);
-    margin-bottom: 1.5rem;
-  }
-
-  .step-title {
-    font-size: 1.3rem;
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    margin-bottom: 1rem;
-    color: var(--paper);
-  }
-
-  .step-title em { font-style: italic; }
-
-  .step-desc {
-    font-size: 0.92rem;
-    font-weight: 300;
-    line-height: 1.7;
-    color: rgba(245,240,232,0.55);
-  }
-
-  /* Work */
-  .work {
-    padding: 10rem 4rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .work-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: rgba(26,23,20,0.12);
-    margin-top: 5rem;
-  }
-
-  .work-item {
-    background: var(--paper);
-    padding: 3.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.4s;
-    cursor: none;
-  }
-  .work-item:hover { background: var(--cream); }
-
-  .work-item-large {
-    grid-column: span 2;
-    padding: 5rem;
-  }
-
-  .work-category {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 1.5rem;
-  }
-
-  .work-title {
-    font-size: 2rem;
-    font-weight: 300;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-  }
-
-  .work-item-large .work-title {
-    font-size: 3rem;
-  }
-
-  .work-title em { font-style: italic; }
-
-  .work-desc {
-    font-size: 1rem;
-    font-weight: 300;
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 50ch;
-  }
-
-  .work-arrow {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    width: 44px; height: 44px;
-    border: 1px solid rgba(26,23,20,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s, border-color 0.3s, transform 0.3s;
-  }
-  .work-item:hover .work-arrow {
-    background: var(--rust);
-    border-color: var(--rust);
-    transform: translate(3px, -3px);
-  }
-  .work-item:hover .work-arrow svg { color: white; }
-
-  /* Testimonials */
-  .testimonials {
-    background: var(--cream);
-    padding: 10rem 4rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .testimonials-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .testimonials-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 3rem;
-    margin-top: 5rem;
-  }
-
-  .testimonial {
-    padding: 2.5rem;
-    background: var(--paper);
-    border-top: 2px solid var(--rust);
-    position: relative;
-  }
-
-  .testimonial-quote {
-    font-size: 3rem;
-    line-height: 1;
-    color: var(--rust-light);
-    font-family: var(--serif);
-    margin-bottom: 1rem;
-  }
-
-  .testimonial-text {
-    font-size: 1.05rem;
-    font-weight: 300;
-    line-height: 1.75;
-    color: var(--ink);
-    margin-bottom: 2rem;
-    font-style: italic;
-  }
-
-  .testimonial-author {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .testimonial-company {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: var(--rust);
-    margin-top: 0.3rem;
-  }
-
-  /* Clients */
-  .clients {
-    padding: 6rem 4rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .clients-label {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .clients-list {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 2rem;
-  }
-
-  .client-name {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    color: rgba(26,23,20,0.25);
-    transition: color 0.3s;
-    cursor: none;
-  }
-  .client-name:hover { color: var(--ink); }
-
-  /* About */
-  .about {
-    padding: 10rem 4rem;
-    background: var(--ink);
-    color: var(--paper);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .about-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8rem;
-    align-items: center;
-  }
-
-  .about .section-label { color: var(--rust); }
-  .about .section-title { color: var(--paper); }
-  .about .section-title em { color: var(--rust); }
-
-  .about-text {
-    font-size: 1.05rem;
-    font-weight: 300;
-    line-height: 1.85;
-    color: rgba(245,240,232,0.65);
-    margin-top: 2rem;
-  }
-
-  .about-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-  }
-
-  .stat {
-    border-top: 1px solid rgba(245,240,232,0.12);
-    padding-top: 2rem;
-  }
-
-  .stat-number {
-    font-size: 3.5rem;
-    font-weight: 300;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: var(--paper);
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-number em { font-style: italic; color: var(--rust); }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.4);
-  }
-
-  /* CTA */
-  .cta-section {
-    padding: 12rem 4rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cta-bg-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22rem;
-    font-weight: 300;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(26,23,20,0.05);
-    pointer-events: none;
-    user-select: none;
-    font-family: var(--serif);
-    font-style: italic;
-    letter-spacing: -0.05em;
-  }
-
-  .cta-inner {
-    position: relative;
-    z-index: 2;
-    max-width: 60ch;
-    margin: 0 auto;
-  }
-
-  .cta-title {
-    font-size: clamp(3rem, 5vw, 5rem);
-    font-weight: 300;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
-  }
-
-  .cta-title em { font-style: italic; color: var(--rust); }
-
-  .cta-sub {
-    font-size: 1.1rem;
-    font-weight: 300;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-bottom: 3.5rem;
-  }
-
-  .cta-email {
-    display: flex;
-    max-width: 480px;
-    margin: 0 auto;
-    gap: 0;
-  }
-
-  .cta-input {
-    flex: 1;
-    padding: 1.1rem 1.5rem;
-    background: transparent;
-    border: 1px solid rgba(26,23,20,0.25);
-    border-right: none;
-    font-family: var(--serif);
-    font-size: 1rem;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.3s;
-  }
-  .cta-input:focus { border-color: var(--rust); }
-  .cta-input::placeholder { color: var(--muted); }
-
-  .cta-submit {
-    padding: 1.1rem 2rem;
-    background: var(--rust);
-    border: 1px solid var(--rust);
-    color: var(--paper);
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: none;
-    transition: background 0.3s;
-  }
-  .cta-submit:hover { background: var(--ink); border-color: var(--ink); }
-
-  /* Footer */
-  footer {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 5rem 4rem 3rem;
-  }
-
-  .footer-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .footer-top {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 4rem;
-    margin-bottom: 5rem;
-  }
-
-  .footer-brand-name {
-    font-size: 1.5rem;
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    margin-bottom: 1rem;
-  }
-
-  .footer-brand-name em { font-style: italic; color: var(--rust); }
-
-  .footer-tagline {
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: rgba(245,240,232,0.4);
-    line-height: 1.7;
-    max-width: 30ch;
-  }
-
-  .footer-col-title {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.3);
-    margin-bottom: 1.5rem;
-  }
-
-  .footer-links {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .footer-links a {
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: rgba(245,240,232,0.55);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .footer-links a:hover { color: var(--paper); }
-
-  .footer-bottom {
-    border-top: 1px solid rgba(245,240,232,0.08);
-    padding-top: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-copy {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: rgba(245,240,232,0.3);
-  }
-
-  .footer-social {
-    display: flex;
-    gap: 2rem;
-  }
-
-  .footer-social a {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(245,240,232,0.3);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .footer-social a:hover { color: var(--rust); }
-
-  /* Animations */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes lineReveal {
-    to { transform: scaleX(1); }
-  }
-
-  @keyframes wordFade {
-    0% { opacity: 0; }
-    30% { opacity: 0.9; }
-    70% { opacity: 0.9; }
-    100% { opacity: 0; }
-  }
-
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  /* Scroll reveal */
-  .reveal {
-    opacity: 0;
-    transform: translateY(32px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
-  .reveal-delay-4 { transition-delay: 0.4s; }
-  .reveal-delay-5 { transition-delay: 0.5s; }
-
-  /* Hover links */
-  a, button { cursor: none; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+--ink: #1a1714;
+--paper: #f5f0e8;
+--cream: #ede7d9;
+--rust: #b84a2e;
+--rust-light: #e8c4bb;
+--sage: #4a5e4d;
+--gold: #c9a84c;
+--muted: #7a7068;
+--serif: 'Cormorant Garamond', Georgia, serif;
+--mono: 'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+background: var(--paper);
+color: var(--ink);
+font-family: var(--serif);
+overflow-x: hidden;
+cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+position: fixed;
+width: 10px; height: 10px;
+background: var(--rust);
+border-radius: 50%;
+pointer-events: none;
+z-index: 9999;
+transform: translate(-50%, -50%);
+transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+}
+.cursor.hovered { width: 40px; height: 40px; background: var(--rust); opacity: 0.4; }
+.cursor.light { background: var(--paper); }
+.cursor.light.hovered { background: var(--paper); }
+.cursor-trail {
+position: fixed;
+width: 4px; height: 4px;
+background: var(--rust);
+border-radius: 50%;
+pointer-events: none;
+z-index: 9998;
+transform: translate(-50%, -50%);
+transition: transform 0.3s ease, background 0.3s ease;
+opacity: 0.6;
+}
+.cursor-trail.light { background: var(--paper); }
+
+/* Noise texture overlay */
+body::before {
+content: '';
+position: fixed;
+inset: 0;
+background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+pointer-events: none;
+z-index: 1000;
+opacity: 0.5;
+}
+
+/* Navigation */
+nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 1.5rem 4rem;
+}
+
+.nav-logo {
+font-family: var(--serif);
+font-size: 1.1rem;
+font-weight: 400;
+letter-spacing: 0.05em;
+color: var(--ink);
+text-decoration: none;
+transition: color 0.4s ease;
+}
+.nav-logo.on-dark { color: var(--paper); }
+
+.nav-links {
+display: flex;
+gap: 3rem;
+list-style: none;
+}
+
+.nav-links a {
+font-family: var(--mono);
+font-size: 0.7rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+text-decoration: none;
+transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--rust); }
+
+/* Hero */
+.hero {
+min-height: 100vh;
+display: grid;
+grid-template-columns: 1fr 1fr;
+position: relative;
+overflow: hidden;
+}
+
+.hero-left {
+padding: 12rem 4rem 6rem;
+display: flex;
+flex-direction: column;
+justify-content: center;
+position: relative;
+z-index: 2;
+}
+
+.hero-eyebrow {
+font-family: var(--mono);
+font-size: 0.68rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--rust);
+margin-bottom: 2rem;
+opacity: 0;
+animation: fadeUp 1s 0.3s forwards;
+}
+
+.hero-title {
+font-size: clamp(4rem, 7vw, 7rem);
+font-weight: 300;
+line-height: 0.92;
+letter-spacing: -0.02em;
+margin-bottom: 2.5rem;
+opacity: 0;
+animation: fadeUp 1s 0.5s forwards;
+}
+
+.hero-title em {
+font-style: italic;
+color: var(--rust);
+}
+
+.hero-subtitle {
+font-size: 1.2rem;
+font-weight: 300;
+line-height: 1.7;
+color: var(--muted);
+max-width: 38ch;
+margin-bottom: 3.5rem;
+opacity: 0;
+animation: fadeUp 1s 0.7s forwards;
+}
+
+.hero-cta {
+display: flex;
+align-items: center;
+gap: 2rem;
+opacity: 0;
+animation: fadeUp 1s 0.9s forwards;
+}
+
+.btn-primary {
+display: inline-flex;
+align-items: center;
+gap: 0.8rem;
+background: var(--ink);
+color: var(--paper);
+font-family: var(--mono);
+font-size: 0.72rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+text-decoration: none;
+padding: 1.1rem 2.2rem;
+transition: background 0.3s, transform 0.2s;
+}
+.btn-primary:hover { background: var(--rust); transform: translateY(-2px); }
+.btn-primary svg { transition: transform 0.3s; }
+.btn-primary:hover svg { transform: translate(3px, -3px); }
+
+.btn-text {
+font-family: var(--mono);
+font-size: 0.72rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+text-decoration: none;
+border-bottom: 1px solid currentColor;
+padding-bottom: 2px;
+transition: color 0.3s;
+}
+.btn-text:hover { color: var(--rust); }
+
+.hero-right {
+position: relative;
+overflow: hidden;
+}
+
+.hero-visual {
+position: absolute;
+inset: 0;
+background: var(--cream);
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+}
+
+.hero-draft-lines {
+position: absolute;
+inset: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+padding: 6rem 4rem;
+gap: 0;
+}
+
+.draft-line {
+height: 1px;
+background: rgba(26,23,20,0.12);
+margin-bottom: 2.8rem;
+transform-origin: left;
+animation: lineReveal 1.5s ease forwards;
+animation-delay: calc(var(--i) * 0.08s + 0.8s);
+transform: scaleX(0);
+}
+
+.draft-word {
+position: absolute;
+font-family: var(--serif);
+font-style: italic;
+color: var(--ink);
+opacity: 0;
+animation: wordFade 2s forwards;
+}
+
+.hero-big-number {
+position: absolute;
+bottom: 3rem;
+right: 3rem;
+font-size: 16rem;
+font-weight: 300;
+color: transparent;
+-webkit-text-stroke: 1px rgba(26,23,20,0.1);
+line-height: 1;
+font-family: var(--serif);
+user-select: none;
+}
+
+.hero-scroll {
+position: absolute;
+bottom: 3rem;
+left: 4rem;
+display: flex;
+align-items: center;
+gap: 1rem;
+opacity: 0;
+animation: fadeUp 1s 1.4s forwards;
+}
+
+.scroll-line {
+width: 40px;
+height: 1px;
+background: var(--muted);
+}
+
+.scroll-text {
+font-family: var(--mono);
+font-size: 0.65rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(--muted);
+}
+
+/* Marquee */
+.marquee-wrap {
+background: var(--ink);
+overflow: hidden;
+padding: 1.1rem 0;
+position: relative;
+}
+
+.marquee {
+display: flex;
+gap: 0;
+animation: marquee 28s linear infinite;
+white-space: nowrap;
+}
+
+.marquee-item {
+display: inline-flex;
+align-items: center;
+gap: 2rem;
+font-family: var(--mono);
+font-size: 0.68rem;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(--paper);
+padding: 0 2rem;
+opacity: 0.7;
+}
+
+.marquee-dot {
+width: 4px;
+height: 4px;
+background: var(--rust);
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+/* Services */
+.services {
+padding: 10rem 4rem;
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.section-header {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 4rem;
+margin-bottom: 6rem;
+align-items: end;
+}
+
+.section-label {
+font-family: var(--mono);
+font-size: 0.68rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--rust);
+margin-bottom: 1.5rem;
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.section-label::before {
+content: '';
+display: block;
+width: 30px;
+height: 1px;
+background: var(--rust);
+}
+
+.section-title {
+font-size: clamp(2.5rem, 4vw, 4rem);
+font-weight: 300;
+line-height: 1.1;
+letter-spacing: -0.02em;
+}
+
+.section-title em { font-style: italic; color: var(--rust); }
+
+.section-desc {
+font-size: 1.1rem;
+font-weight: 300;
+line-height: 1.8;
+color: var(--muted);
+align-self: end;
+}
+
+.services-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+border-top: 1px solid rgba(26,23,20,0.12);
+}
+
+.service-card {
+padding: 3rem 2.5rem 3rem 2rem;
+border-right: 1px solid rgba(26,23,20,0.12);
+position: relative;
+overflow: hidden;
+transition: background 0.4s;
+}
+
+.service-card:last-child { border-right: none; padding-right: 0; }
+.service-card:first-child { padding-left: 0; }
+.service-card:nth-child(3n) { padding-right: 0; }
+
+.service-card::after {
+content: '';
+position: absolute;
+bottom: 0; left: 0;
+width: 100%; height: 2px;
+background: var(--rust);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.4s ease;
+}
+.service-card:hover::after { transform: scaleX(1); }
+
+.service-number {
+font-family: var(--mono);
+font-size: 0.65rem;
+letter-spacing: 0.15em;
+color: var(--rust);
+margin-bottom: 2rem;
+}
+
+.service-name {
+font-size: 1.6rem;
+font-weight: 400;
+line-height: 1.2;
+margin-bottom: 1.2rem;
+letter-spacing: -0.01em;
+}
+
+.service-name em { font-style: italic; }
+
+.service-desc {
+font-size: 1rem;
+font-weight: 300;
+line-height: 1.7;
+color: var(--muted);
+margin-bottom: 2rem;
+}
+
+.service-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 0.5rem;
+}
+
+.tag {
+font-family: var(--mono);
+font-size: 0.6rem;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+padding: 0.3rem 0.8rem;
+border: 1px solid rgba(26,23,20,0.2);
+color: var(--muted);
+}
+
+/* Process */
+.process {
+background: var(--ink);
+padding: 10rem 4rem;
+color: var(--paper);
+position: relative;
+overflow: hidden;
+}
+
+.process::before {
+content: 'DRAFT';
+position: absolute;
+right: -3rem;
+top: 50%;
+transform: translateY(-50%) rotate(90deg);
+font-size: 22rem;
+font-weight: 300;
+color: transparent;
+-webkit-text-stroke: 1px rgba(245,240,232,0.05);
+letter-spacing: -0.05em;
+pointer-events: none;
+user-select: none;
+font-family: var(--serif);
+}
+
+.process-inner {
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.process .section-label { color: var(--rust); }
+.process .section-title { color: var(--paper); }
+.process .section-title em { color: var(--rust); }
+
+.process-steps {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 0;
+margin-top: 6rem;
+position: relative;
+}
+
+.process-steps::before {
+content: '';
+position: absolute;
+top: 2rem;
+left: 0; right: 0;
+height: 1px;
+background: rgba(245,240,232,0.12);
+}
+
+.step {
+padding: 4rem 2rem 0 0;
+position: relative;
+}
+
+.step-dot {
+position: absolute;
+top: 1.6rem;
+left: 0;
+width: 10px; height: 10px;
+border-radius: 50%;
+background: var(--rust);
+transition: transform 0.3s;
+}
+.step:hover .step-dot { transform: scale(1.5); }
+
+.step-number {
+font-family: var(--mono);
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+color: var(--rust);
+margin-bottom: 1.5rem;
+}
+
+.step-title {
+font-size: 1.3rem;
+font-weight: 300;
+letter-spacing: -0.01em;
+margin-bottom: 1rem;
+color: var(--paper);
+}
+
+.step-title em { font-style: italic; }
+
+.step-desc {
+font-size: 0.92rem;
+font-weight: 300;
+line-height: 1.7;
+color: rgba(245,240,232,0.55);
+}
+
+/* Work */
+.work {
+padding: 10rem 4rem;
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.work-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1px;
+background: rgba(26,23,20,0.12);
+margin-top: 5rem;
+}
+
+.work-item {
+background: var(--paper);
+padding: 3.5rem;
+position: relative;
+overflow: hidden;
+transition: background 0.4s;
+cursor: none;
+}
+.work-item:hover { background: var(--cream); }
+
+.work-item-large {
+grid-column: span 2;
+padding: 5rem;
+}
+
+.work-category {
+font-family: var(--mono);
+font-size: 0.62rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--rust);
+margin-bottom: 1.5rem;
+}
+
+.work-title {
+font-size: 2rem;
+font-weight: 300;
+letter-spacing: -0.02em;
+line-height: 1.2;
+margin-bottom: 1rem;
+}
+
+.work-item-large .work-title {
+font-size: 3rem;
+}
+
+.work-title em { font-style: italic; }
+
+.work-desc {
+font-size: 1rem;
+font-weight: 300;
+color: var(--muted);
+line-height: 1.7;
+max-width: 50ch;
+}
+
+.work-arrow {
+position: absolute;
+bottom: 2rem;
+right: 2rem;
+width: 44px; height: 44px;
+border: 1px solid rgba(26,23,20,0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+.work-item:hover .work-arrow {
+background: var(--rust);
+border-color: var(--rust);
+transform: translate(3px, -3px);
+}
+.work-item:hover .work-arrow svg { color: white; }
+
+/* Testimonials */
+.testimonials {
+background: var(--cream);
+padding: 10rem 4rem;
+position: relative;
+overflow: hidden;
+}
+
+.testimonials-inner {
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.testimonials-grid {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 3rem;
+margin-top: 5rem;
+}
+
+.testimonial {
+padding: 2.5rem;
+background: var(--paper);
+border-top: 2px solid var(--rust);
+position: relative;
+}
+
+.testimonial-quote {
+font-size: 3rem;
+line-height: 1;
+color: var(--rust-light);
+font-family: var(--serif);
+margin-bottom: 1rem;
+}
+
+.testimonial-text {
+font-size: 1.05rem;
+font-weight: 300;
+line-height: 1.75;
+color: var(--ink);
+margin-bottom: 2rem;
+font-style: italic;
+}
+
+.testimonial-author {
+font-family: var(--mono);
+font-size: 0.68rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+}
+
+.testimonial-company {
+font-family: var(--mono);
+font-size: 0.62rem;
+letter-spacing: 0.1em;
+color: var(--rust);
+margin-top: 0.3rem;
+}
+
+/* Clients */
+.clients {
+padding: 6rem 4rem;
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.clients-label {
+font-family: var(--mono);
+font-size: 0.65rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--muted);
+text-align: center;
+margin-bottom: 3rem;
+}
+
+.clients-list {
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 2rem;
+}
+
+.client-name {
+font-family: var(--serif);
+font-size: 1.4rem;
+font-weight: 300;
+letter-spacing: -0.01em;
+color: rgba(26,23,20,0.25);
+transition: color 0.3s;
+cursor: none;
+}
+.client-name:hover { color: var(--ink); }
+
+/* About */
+.about {
+padding: 10rem 4rem;
+background: var(--ink);
+color: var(--paper);
+position: relative;
+overflow: hidden;
+}
+
+.about-inner {
+max-width: 1400px;
+margin: 0 auto;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 8rem;
+align-items: center;
+}
+
+.about .section-label { color: var(--rust); }
+.about .section-title { color: var(--paper); }
+.about .section-title em { color: var(--rust); }
+
+.about-text {
+font-size: 1.05rem;
+font-weight: 300;
+line-height: 1.85;
+color: rgba(245,240,232,0.65);
+margin-top: 2rem;
+}
+
+.about-stats {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 3rem;
+}
+
+.stat {
+border-top: 1px solid rgba(245,240,232,0.12);
+padding-top: 2rem;
+}
+
+.stat-number {
+font-size: 3.5rem;
+font-weight: 300;
+letter-spacing: -0.03em;
+line-height: 1;
+color: var(--paper);
+margin-bottom: 0.5rem;
+}
+
+.stat-number em { font-style: italic; color: var(--rust); }
+
+.stat-label {
+font-family: var(--mono);
+font-size: 0.68rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: rgba(245,240,232,0.4);
+}
+
+/* CTA */
+.cta-section {
+padding: 12rem 4rem;
+text-align: center;
+position: relative;
+overflow: hidden;
+}
+
+.cta-bg-text {
+position: absolute;
+inset: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22rem;
+font-weight: 300;
+color: transparent;
+-webkit-text-stroke: 1px rgba(26,23,20,0.05);
+pointer-events: none;
+user-select: none;
+font-family: var(--serif);
+font-style: italic;
+letter-spacing: -0.05em;
+}
+
+.cta-inner {
+position: relative;
+z-index: 2;
+max-width: 60ch;
+margin: 0 auto;
+}
+
+.cta-title {
+font-size: clamp(3rem, 5vw, 5rem);
+font-weight: 300;
+line-height: 1.1;
+letter-spacing: -0.02em;
+margin-bottom: 1.5rem;
+}
+
+.cta-title em { font-style: italic; color: var(--rust); }
+
+.cta-sub {
+font-size: 1.1rem;
+font-weight: 300;
+color: var(--muted);
+line-height: 1.7;
+margin-bottom: 3.5rem;
+}
+
+.cta-email {
+display: flex;
+max-width: 480px;
+margin: 0 auto;
+gap: 0;
+}
+
+.cta-input {
+flex: 1;
+padding: 1.1rem 1.5rem;
+background: transparent;
+border: 1px solid rgba(26,23,20,0.25);
+border-right: none;
+font-family: var(--serif);
+font-size: 1rem;
+color: var(--ink);
+outline: none;
+transition: border-color 0.3s;
+}
+.cta-input:focus { border-color: var(--rust); }
+.cta-input::placeholder { color: var(--muted); }
+
+.cta-submit {
+padding: 1.1rem 2rem;
+background: var(--rust);
+border: 1px solid var(--rust);
+color: var(--paper);
+font-family: var(--mono);
+font-size: 0.7rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+cursor: none;
+transition: background 0.3s;
+}
+.cta-submit:hover { background: var(--ink); border-color: var(--ink); }
+
+/* Footer */
+footer {
+background: var(--ink);
+color: var(--paper);
+padding: 5rem 4rem 3rem;
+}
+
+.footer-inner {
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.footer-top {
+display: grid;
+grid-template-columns: 2fr 1fr 1fr 1fr;
+gap: 4rem;
+margin-bottom: 5rem;
+}
+
+.footer-brand-name {
+font-size: 1.5rem;
+font-weight: 300;
+letter-spacing: -0.01em;
+margin-bottom: 1rem;
+}
+
+.footer-brand-name em { font-style: italic; color: var(--rust); }
+
+.footer-tagline {
+font-size: 0.9rem;
+font-weight: 300;
+color: rgba(245,240,232,0.4);
+line-height: 1.7;
+max-width: 30ch;
+}
+
+.footer-col-title {
+font-family: var(--mono);
+font-size: 0.62rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: rgba(245,240,232,0.3);
+margin-bottom: 1.5rem;
+}
+
+.footer-links {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 0.8rem;
+}
+
+.footer-links a {
+font-size: 0.95rem;
+font-weight: 300;
+color: rgba(245,240,232,0.55);
+text-decoration: none;
+transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--paper); }
+
+.footer-bottom {
+border-top: 1px solid rgba(245,240,232,0.08);
+padding-top: 2rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.footer-copy {
+font-family: var(--mono);
+font-size: 0.62rem;
+letter-spacing: 0.1em;
+color: rgba(245,240,232,0.3);
+}
+
+.footer-social {
+display: flex;
+gap: 2rem;
+}
+
+.footer-social a {
+font-family: var(--mono);
+font-size: 0.62rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: rgba(245,240,232,0.3);
+text-decoration: none;
+transition: color 0.3s;
+}
+.footer-social a:hover { color: var(--rust); }
+
+/* Animations */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(24px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lineReveal {
+to { transform: scaleX(1); }
+}
+
+@keyframes wordFade {
+0% { opacity: 0; }
+30% { opacity: 0.9; }
+70% { opacity: 0.9; }
+100% { opacity: 0; }
+}
+
+@keyframes marquee {
+from { transform: translateX(0); }
+to { transform: translateX(-50%); }
+}
+
+/* Scroll reveal */
+.reveal {
+opacity: 0;
+transform: translateY(32px);
+transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* Hover links */
+a, button { cursor: none; }
+
+/* =====================
+MOBILE RESPONSIVE
+===================== */
+@media (max-width: 768px) {
+
+/* Restore normal cursor on touch devices */
+body { cursor: auto; }
+a, button { cursor: auto; }
+.cursor, .cursor-trail { display: none; }
+
+/* Nav */
+nav {
+padding: 1.2rem 1.5rem;
+background: var(--paper);
+box-shadow: 0 1px 0 rgba(26,23,20,0.08);
+}
+.nav-logo { color: var(--ink) !important; }
+.nav-links { display: none; }
+
+/* Hero */
+.hero {
+grid-template-columns: 1fr;
+min-height: 100svh;
+}
+.hero-right { display: none; }
+.hero-left {
+padding: 8rem 1.5rem 5rem;
+justify-content: flex-end;
+}
+.hero-title {
+font-size: clamp(3.2rem, 13vw, 5rem);
+line-height: 0.95;
+margin-bottom: 1.5rem;
+}
+.hero-subtitle {
+font-size: 1rem;
+margin-bottom: 2.5rem;
+max-width: 100%;
+}
+.hero-cta { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
+.hero-scroll { display: none; }
+
+/* Section headers */
+.section-header {
+grid-template-columns: 1fr;
+gap: 1.5rem;
+margin-bottom: 3rem;
+}
+.section-title { font-size: clamp(2rem, 9vw, 3rem); }
+
+/* Services */
+.services { padding: 5rem 1.5rem; }
+.services-grid {
+grid-template-columns: 1fr;
+border-top: none;
+}
+.service-card {
+padding: 2rem 0;
+border-right: none;
+border-top: 1px solid rgba(26,23,20,0.12);
+}
+.service-card:first-child { padding-left: 0; border-top: 1px solid rgba(26,23,20,0.12); }
+.service-card:nth-child(3n) { padding-right: 0; }
+
+/* Process */
+.process { padding: 5rem 1.5rem; }
+.process::before { display: none; }
+.process-steps {
+grid-template-columns: 1fr;
+margin-top: 3rem;
+}
+.process-steps::before { display: none; }
+.step {
+padding: 0 0 2.5rem 2rem;
+border-left: 1px solid rgba(245,240,232,0.12);
+}
+.step-dot {
+top: 0;
+left: -5px;
+}
+.step-number { margin-bottom: 0.8rem; }
+
+/* Work */
+.work { padding: 5rem 1.5rem; }
+.work-grid { grid-template-columns: 1fr; }
+.work-item { padding: 2rem; }
+.work-item-large {
+grid-column: span 1;
+padding: 2rem;
+}
+.work-item-large .work-title { font-size: 1.8rem; }
+.work-title { font-size: 1.4rem; }
+
+/* Testimonials */
+.testimonials { padding: 5rem 1.5rem; }
+.testimonials-grid {
+grid-template-columns: 1fr;
+gap: 1.5rem;
+margin-top: 3rem;
+}
+
+/* Clients */
+.clients { padding: 3rem 1.5rem; }
+.clients-list { gap: 1.2rem; justify-content: center; }
+.client-name { font-size: 1.1rem; }
+
+/* About */
+.about { padding: 5rem 1.5rem; }
+.about-inner {
+grid-template-columns: 1fr;
+gap: 3rem;
+}
+.about-stats { gap: 1.5rem; }
+.stat-number { font-size: 2.5rem; }
+
+/* CTA */
+.cta-section { padding: 6rem 1.5rem; }
+.cta-bg-text { font-size: 8rem; }
+.cta-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+.cta-email { flex-direction: column; }
+.cta-input { border-right: 1px solid rgba(26,23,20,0.25); border-bottom: none; }
+.cta-submit { width: 100%; padding: 1rem; }
+
+/* Footer */
+footer { padding: 3rem 1.5rem 2rem; }
+.footer-top {
+grid-template-columns: 1fr 1fr;
+gap: 2.5rem;
+margin-bottom: 3rem;
+}
+.footer-top > div:first-child { grid-column: span 2; }
+.footer-bottom {
+flex-direction: column;
+gap: 1rem;
+align-items: flex-start;
+}
+}
+
+@media (max-width: 480px) {
+.footer-top { grid-template-columns: 1fr; }
+.footer-top > div:first-child { grid-column: span 1; }
+.footer-social { flex-wrap: wrap; gap: 1.2rem; }
+}
 </style>
 </head>
 <body>
@@ -996,464 +1141,464 @@
 <div class="cursor-trail" id="cursor-trail"></div>
 
 <nav>
-  <a href="#" class="nav-logo">The Fifth Draft</a>
-  <ul class="nav-links">
-    <li><a href="#services">Services</a></li>
-    <li><a href="#work">Work</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
+<a href="#" class="nav-logo">The Fifth Draft</a>
+<ul class="nav-links">
+<li><a href="#services">Services</a></li>
+<li><a href="#work">Work</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-left">
-    <p class="hero-eyebrow">Copywriter — Est. 2022</p>
-    <h1 class="hero-title">Words that<br>actually <em>work.</em></h1>
-    <p class="hero-subtitle">I write copy that moves people — not just through funnels, but to action, belief, and loyalty. Because the best draft isn't the first one.</p>
-    <div class="hero-cta">
-      <a href="#contact" class="btn-primary">
-        Start a project
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M2 12L12 2M12 2H5M12 2v7"/>
-        </svg>
-      </a>
-      <a href="#work" class="btn-text">See my work</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="hero-visual">
-      <div class="hero-draft-lines">
-        <div class="draft-line" style="--i:0"></div>
-        <div class="draft-line" style="--i:1"></div>
-        <div class="draft-line" style="--i:2; width:85%"></div>
-        <div class="draft-line" style="--i:3"></div>
-        <div class="draft-line" style="--i:4; width:70%"></div>
-        <div class="draft-line" style="--i:5"></div>
-        <div class="draft-line" style="--i:6; width:90%"></div>
-        <div class="draft-line" style="--i:7"></div>
-        <div class="draft-line" style="--i:8; width:60%"></div>
-        <div class="draft-line" style="--i:9"></div>
-        <div class="draft-line" style="--i:10; width:80%"></div>
-        <div class="draft-line" style="--i:11"></div>
-      </div>
-      <div class="hero-big-number">5</div>
-    </div>
-  </div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    <span class="scroll-text">Scroll to explore</span>
-  </div>
+<div class="hero-left">
+<p class="hero-eyebrow">Copywriter — Est. 2022</p>
+<h1 class="hero-title">Words that<br>actually <em>work.</em></h1>
+<p class="hero-subtitle">I write copy that moves people — not just through funnels, but to action, belief, and loyalty. Because the best draft isn't the first one.</p>
+<div class="hero-cta">
+<a href="#contact" class="btn-primary">
+Start a project
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M2 12L12 2M12 2H5M12 2v7"/>
+</svg>
+</a>
+<a href="#work" class="btn-text">See my work</a>
+</div>
+</div>
+<div class="hero-right">
+<div class="hero-visual">
+<div class="hero-draft-lines">
+<div class="draft-line" style="--i:0"></div>
+<div class="draft-line" style="--i:1"></div>
+<div class="draft-line" style="--i:2; width:85%"></div>
+<div class="draft-line" style="--i:3"></div>
+<div class="draft-line" style="--i:4; width:70%"></div>
+<div class="draft-line" style="--i:5"></div>
+<div class="draft-line" style="--i:6; width:90%"></div>
+<div class="draft-line" style="--i:7"></div>
+<div class="draft-line" style="--i:8; width:60%"></div>
+<div class="draft-line" style="--i:9"></div>
+<div class="draft-line" style="--i:10; width:80%"></div>
+<div class="draft-line" style="--i:11"></div>
+</div>
+<div class="hero-big-number">5</div>
+</div>
+</div>
+<div class="hero-scroll">
+<div class="scroll-line"></div>
+<span class="scroll-text">Scroll to explore</span>
+</div>
 </section>
 
 <!-- Marquee -->
 <div class="marquee-wrap">
-  <div class="marquee">
-    <span class="marquee-item"><span>Brand Voice</span><span class="marquee-dot"></span><span>Website Copy</span><span class="marquee-dot"></span><span>Campaign Writing</span><span class="marquee-dot"></span><span>Email Sequences</span><span class="marquee-dot"></span><span>Content Strategy</span><span class="marquee-dot"></span><span>Tone of Voice</span><span class="marquee-dot"></span><span>UX Writing</span><span class="marquee-dot"></span><span>Launch Copy</span><span class="marquee-dot"></span></span>
-    <span class="marquee-item"><span>Brand Voice</span><span class="marquee-dot"></span><span>Website Copy</span><span class="marquee-dot"></span><span>Campaign Writing</span><span class="marquee-dot"></span><span>Email Sequences</span><span class="marquee-dot"></span><span>Content Strategy</span><span class="marquee-dot"></span><span>Tone of Voice</span><span class="marquee-dot"></span><span>UX Writing</span><span class="marquee-dot"></span><span>Launch Copy</span><span class="marquee-dot"></span></span>
-  </div>
+<div class="marquee">
+<span class="marquee-item"><span>Brand Voice</span><span class="marquee-dot"></span><span>Website Copy</span><span class="marquee-dot"></span><span>Campaign Writing</span><span class="marquee-dot"></span><span>Email Sequences</span><span class="marquee-dot"></span><span>Content Strategy</span><span class="marquee-dot"></span><span>Tone of Voice</span><span class="marquee-dot"></span><span>UX Writing</span><span class="marquee-dot"></span><span>Launch Copy</span><span class="marquee-dot"></span></span>
+<span class="marquee-item"><span>Brand Voice</span><span class="marquee-dot"></span><span>Website Copy</span><span class="marquee-dot"></span><span>Campaign Writing</span><span class="marquee-dot"></span><span>Email Sequences</span><span class="marquee-dot"></span><span>Content Strategy</span><span class="marquee-dot"></span><span>Tone of Voice</span><span class="marquee-dot"></span><span>UX Writing</span><span class="marquee-dot"></span><span>Launch Copy</span><span class="marquee-dot"></span></span>
+</div>
 </div>
 
 <!-- Services -->
 <section class="services" id="services">
-  <div class="section-header">
-    <div>
-      <div class="section-label reveal">What we do</div>
-      <h2 class="section-title reveal reveal-delay-1">Crafted for<br><em>every medium</em></h2>
-    </div>
-    <p class="section-desc reveal reveal-delay-2">From the first line to the final full stop, I sweat every syllable. Whatever the channel, whatever the brief — copy that earns its keep.</p>
-  </div>
+<div class="section-header">
+<div>
+<div class="section-label reveal">What we do</div>
+<h2 class="section-title reveal reveal-delay-1">Crafted for<br><em>every medium</em></h2>
+</div>
+<p class="section-desc reveal reveal-delay-2">From the first line to the final full stop, I sweat every syllable. Whatever the channel, whatever the brief — copy that earns its keep.</p>
+</div>
 
-  <div class="services-grid">
-    <div class="service-card reveal">
-      <div class="service-number">01</div>
-      <h3 class="service-name">Brand <em>Voice</em> &amp; Tone</h3>
-      <p class="service-desc">I find the voice that's distinctly, unmistakably yours — then document it so you can speak it fluently across every channel.</p>
-      <div class="service-tags">
-        <span class="tag">Guidelines</span>
-        <span class="tag">Tone Audits</span>
-        <span class="tag">Naming</span>
-        <span class="tag">Messaging</span>
-      </div>
-    </div>
-    <div class="service-card reveal reveal-delay-1">
-      <div class="service-number">02</div>
-      <h3 class="service-name">Website <em>Copy</em></h3>
-      <p class="service-desc">Pages that work as hard as your product. I structure, write, and refine copy that converts without sounding like it's trying to.</p>
-      <div class="service-tags">
-        <span class="tag">Homepages</span>
-        <span class="tag">Landing Pages</span>
-        <span class="tag">Product Pages</span>
-        <span class="tag">About</span>
-      </div>
-    </div>
-    <div class="service-card reveal reveal-delay-2">
-      <div class="service-number">03</div>
-      <h3 class="service-name">Campaign <em>Writing</em></h3>
-      <p class="service-desc">Concepts and copy for campaigns that people actually remember. I go from big idea to final execution — solo, with no agency overhead.</p>
-      <div class="service-tags">
-        <span class="tag">Ad Copy</span>
-        <span class="tag">OOH</span>
-        <span class="tag">Social</span>
-        <span class="tag">Print</span>
-      </div>
-    </div>
-    <div class="service-card reveal reveal-delay-1">
-      <div class="service-number">04</div>
-      <h3 class="service-name">Email <em>Sequences</em></h3>
-      <p class="service-desc">Nurture flows, onboarding series, and campaigns that people look forward to opening. Yes, really.</p>
-      <div class="service-tags">
-        <span class="tag">Onboarding</span>
-        <span class="tag">Nurture</span>
-        <span class="tag">Newsletters</span>
-      </div>
-    </div>
-    <div class="service-card reveal reveal-delay-2">
-      <div class="service-number">05</div>
-      <h3 class="service-name">UX <em>Writing</em></h3>
-      <p class="service-desc">The words inside your product matter more than most realise. I make every microcopy moment count.</p>
-      <div class="service-tags">
-        <span class="tag">Microcopy</span>
-        <span class="tag">Error States</span>
-        <span class="tag">Onboarding</span>
-      </div>
-    </div>
-    <div class="service-card reveal reveal-delay-3">
-      <div class="service-number">06</div>
-      <h3 class="service-name">Content <em>Strategy</em></h3>
-      <p class="service-desc">A plan that makes sense for your goals, audience, and budget — not a generic editorial calendar dressed up as strategy.</p>
-      <div class="service-tags">
-        <span class="tag">Audits</span>
-        <span class="tag">Planning</span>
-        <span class="tag">SEO</span>
-        <span class="tag">Pillars</span>
-      </div>
-    </div>
-  </div>
+<div class="services-grid">
+<div class="service-card reveal">
+<div class="service-number">01</div>
+<h3 class="service-name">Brand <em>Voice</em> &amp; Tone</h3>
+<p class="service-desc">I find the voice that's distinctly, unmistakably yours — then document it so you can speak it fluently across every channel.</p>
+<div class="service-tags">
+<span class="tag">Guidelines</span>
+<span class="tag">Tone Audits</span>
+<span class="tag">Naming</span>
+<span class="tag">Messaging</span>
+</div>
+</div>
+<div class="service-card reveal reveal-delay-1">
+<div class="service-number">02</div>
+<h3 class="service-name">Website <em>Copy</em></h3>
+<p class="service-desc">Pages that work as hard as your product. I structure, write, and refine copy that converts without sounding like it's trying to.</p>
+<div class="service-tags">
+<span class="tag">Homepages</span>
+<span class="tag">Landing Pages</span>
+<span class="tag">Product Pages</span>
+<span class="tag">About</span>
+</div>
+</div>
+<div class="service-card reveal reveal-delay-2">
+<div class="service-number">03</div>
+<h3 class="service-name">Campaign <em>Writing</em></h3>
+<p class="service-desc">Concepts and copy for campaigns that people actually remember. I go from big idea to final execution — solo, with no agency overhead.</p>
+<div class="service-tags">
+<span class="tag">Ad Copy</span>
+<span class="tag">OOH</span>
+<span class="tag">Social</span>
+<span class="tag">Print</span>
+</div>
+</div>
+<div class="service-card reveal reveal-delay-1">
+<div class="service-number">04</div>
+<h3 class="service-name">Email <em>Sequences</em></h3>
+<p class="service-desc">Nurture flows, onboarding series, and campaigns that people look forward to opening. Yes, really.</p>
+<div class="service-tags">
+<span class="tag">Onboarding</span>
+<span class="tag">Nurture</span>
+<span class="tag">Newsletters</span>
+</div>
+</div>
+<div class="service-card reveal reveal-delay-2">
+<div class="service-number">05</div>
+<h3 class="service-name">UX <em>Writing</em></h3>
+<p class="service-desc">The words inside your product matter more than most realise. I make every microcopy moment count.</p>
+<div class="service-tags">
+<span class="tag">Microcopy</span>
+<span class="tag">Error States</span>
+<span class="tag">Onboarding</span>
+</div>
+</div>
+<div class="service-card reveal reveal-delay-3">
+<div class="service-number">06</div>
+<h3 class="service-name">Content <em>Strategy</em></h3>
+<p class="service-desc">A plan that makes sense for your goals, audience, and budget — not a generic editorial calendar dressed up as strategy.</p>
+<div class="service-tags">
+<span class="tag">Audits</span>
+<span class="tag">Planning</span>
+<span class="tag">SEO</span>
+<span class="tag">Pillars</span>
+</div>
+</div>
+</div>
 </section>
 
 <!-- Process -->
 <section class="process">
-  <div class="process-inner">
-    <div class="section-header">
-      <div>
-        <div class="section-label reveal">How I work</div>
-        <h2 class="section-title reveal reveal-delay-1">Five drafts.<br><em>One masterpiece.</em></h2>
-      </div>
-      <p class="section-desc reveal reveal-delay-2" style="color: rgba(245,240,232,0.5);">Every project goes through the same rigorous process. The name isn't a gimmick — it's a commitment to never settling for good enough.</p>
-    </div>
-    <div class="process-steps">
-      <div class="step reveal">
-        <div class="step-dot"></div>
-        <div class="step-number">Draft 01</div>
-        <h3 class="step-title"><em>Discover</em></h3>
-        <p class="step-desc">I get inside your brand, your customers, and your competitors. Deep listening before a single word is written.</p>
-      </div>
-      <div class="step reveal reveal-delay-1">
-        <div class="step-dot"></div>
-        <div class="step-number">Draft 02</div>
-        <h3 class="step-title"><em>Structure</em></h3>
-        <p class="step-desc">Messaging hierarchy, narrative arc, and argument flow. I decide what to say before I decide how to say it.</p>
-      </div>
-      <div class="step reveal reveal-delay-2">
-        <div class="step-dot"></div>
-        <div class="step-number">Draft 03</div>
-        <h3 class="step-title"><em>Write</em></h3>
-        <p class="step-desc">The first full draft — rough edges and all. I don't polish before I've got the raw material right.</p>
-      </div>
-      <div class="step reveal reveal-delay-3">
-        <div class="step-dot"></div>
-        <div class="step-number">Draft 04</div>
-        <h3 class="step-title"><em>Refine</em></h3>
-        <p class="step-desc">I cut, sharpen, rearrange. This is where good becomes great. Where the obvious becomes the unexpected.</p>
-      </div>
-      <div class="step reveal reveal-delay-4">
-        <div class="step-dot"></div>
-        <div class="step-number">Draft 05</div>
-        <h3 class="step-title"><em>Perfect</em></h3>
-        <p class="step-desc">The final read. Every word earns its place. Nothing left in that shouldn't be. Nothing missing that should.</p>
-      </div>
-    </div>
-  </div>
+<div class="process-inner">
+<div class="section-header">
+<div>
+<div class="section-label reveal">How I work</div>
+<h2 class="section-title reveal reveal-delay-1">Five drafts.<br><em>One masterpiece.</em></h2>
+</div>
+<p class="section-desc reveal reveal-delay-2" style="color: rgba(245,240,232,0.5);">Every project goes through the same rigorous process. The name isn't a gimmick — it's a commitment to never settling for good enough.</p>
+</div>
+<div class="process-steps">
+<div class="step reveal">
+<div class="step-dot"></div>
+<div class="step-number">Draft 01</div>
+<h3 class="step-title"><em>Discover</em></h3>
+<p class="step-desc">I get inside your brand, your customers, and your competitors. Deep listening before a single word is written.</p>
+</div>
+<div class="step reveal reveal-delay-1">
+<div class="step-dot"></div>
+<div class="step-number">Draft 02</div>
+<h3 class="step-title"><em>Structure</em></h3>
+<p class="step-desc">Messaging hierarchy, narrative arc, and argument flow. I decide what to say before I decide how to say it.</p>
+</div>
+<div class="step reveal reveal-delay-2">
+<div class="step-dot"></div>
+<div class="step-number">Draft 03</div>
+<h3 class="step-title"><em>Write</em></h3>
+<p class="step-desc">The first full draft — rough edges and all. I don't polish before I've got the raw material right.</p>
+</div>
+<div class="step reveal reveal-delay-3">
+<div class="step-dot"></div>
+<div class="step-number">Draft 04</div>
+<h3 class="step-title"><em>Refine</em></h3>
+<p class="step-desc">I cut, sharpen, rearrange. This is where good becomes great. Where the obvious becomes the unexpected.</p>
+</div>
+<div class="step reveal reveal-delay-4">
+<div class="step-dot"></div>
+<div class="step-number">Draft 05</div>
+<h3 class="step-title"><em>Perfect</em></h3>
+<p class="step-desc">The final read. Every word earns its place. Nothing left in that shouldn't be. Nothing missing that should.</p>
+</div>
+</div>
+</div>
 </section>
 
 <!-- Work -->
 <section class="work" id="work">
-  <div class="section-header">
-    <div>
-      <div class="section-label reveal">Selected work</div>
-      <h2 class="section-title reveal reveal-delay-1">Words in the<br><em>wild</em></h2>
-    </div>
-    <p class="section-desc reveal reveal-delay-2">A selection of projects I'm proud of — and the clients kind enough to let me share them.</p>
-  </div>
+<div class="section-header">
+<div>
+<div class="section-label reveal">Selected work</div>
+<h2 class="section-title reveal reveal-delay-1">Words in the<br><em>wild</em></h2>
+</div>
+<p class="section-desc reveal reveal-delay-2">A selection of projects I'm proud of — and the clients kind enough to let me share them.</p>
+</div>
 
-  <div class="work-grid">
-    <div class="work-item work-item-large reveal">
-      <div class="work-category">Brand Voice — Fintech</div>
-      <h3 class="work-title">Rewriting the language of <em>personal finance</em></h3>
-      <p class="work-desc">A complete tone-of-voice overhaul for a challenger bank — making money feel human, not intimidating, without losing authority.</p>
-      <div class="work-arrow">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 13L13 3M13 3H6M13 3v7"/>
-        </svg>
-      </div>
-    </div>
-    <div class="work-item reveal">
-      <div class="work-category">Website Copy — SaaS</div>
-      <h3 class="work-title">Turning features into <em>feelings</em></h3>
-      <p class="work-desc">A B2B project management tool that needed to stop talking about itself and start talking about its users.</p>
-      <div class="work-arrow">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 13L13 3M13 3H6M13 3v7"/>
-        </svg>
-      </div>
-    </div>
-    <div class="work-item reveal reveal-delay-1">
-      <div class="work-category">Campaign — Fashion Retail</div>
-      <h3 class="work-title">A campaign about <em>nothing</em> that said everything</h3>
-      <p class="work-desc">Six words. Twelve executions. One seasonal campaign that drove a 34% uplift in brand recall.</p>
-      <div class="work-arrow">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 13L13 3M13 3H6M13 3v7"/>
-        </svg>
-      </div>
-    </div>
-    <div class="work-item reveal">
-      <div class="work-category">Email Series — Health & Wellness</div>
-      <h3 class="work-title">The onboarding <em>sequence</em> people forward to friends</h3>
-      <p class="work-desc">Eight emails. 62% average open rate. Zero unsubscribes in the first 30 days of testing.</p>
-      <div class="work-arrow">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 13L13 3M13 3H6M13 3v7"/>
-        </svg>
-      </div>
-    </div>
-    <div class="work-item reveal reveal-delay-1">
-      <div class="work-category">UX Writing — App</div>
-      <h3 class="work-title">Making error messages <em>almost</em> enjoyable</h3>
-      <p class="work-desc">Rewrote 400+ interface strings for a meditation app. Support tickets dropped 28% in the quarter after launch.</p>
-      <div class="work-arrow">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 13L13 3M13 3H6M13 3v7"/>
-        </svg>
-      </div>
-    </div>
-  </div>
+<div class="work-grid">
+<div class="work-item work-item-large reveal">
+<div class="work-category">Brand Voice — Fintech</div>
+<h3 class="work-title">Rewriting the language of <em>personal finance</em></h3>
+<p class="work-desc">A complete tone-of-voice overhaul for a challenger bank — making money feel human, not intimidating, without losing authority.</p>
+<div class="work-arrow">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M3 13L13 3M13 3H6M13 3v7"/>
+</svg>
+</div>
+</div>
+<div class="work-item reveal">
+<div class="work-category">Website Copy — SaaS</div>
+<h3 class="work-title">Turning features into <em>feelings</em></h3>
+<p class="work-desc">A B2B project management tool that needed to stop talking about itself and start talking about its users.</p>
+<div class="work-arrow">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M3 13L13 3M13 3H6M13 3v7"/>
+</svg>
+</div>
+</div>
+<div class="work-item reveal reveal-delay-1">
+<div class="work-category">Campaign — Fashion Retail</div>
+<h3 class="work-title">A campaign about <em>nothing</em> that said everything</h3>
+<p class="work-desc">Six words. Twelve executions. One seasonal campaign that drove a 34% uplift in brand recall.</p>
+<div class="work-arrow">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M3 13L13 3M13 3H6M13 3v7"/>
+</svg>
+</div>
+</div>
+<div class="work-item reveal">
+<div class="work-category">Email Series — Health & Wellness</div>
+<h3 class="work-title">The onboarding <em>sequence</em> people forward to friends</h3>
+<p class="work-desc">Eight emails. 62% average open rate. Zero unsubscribes in the first 30 days of testing.</p>
+<div class="work-arrow">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M3 13L13 3M13 3H6M13 3v7"/>
+</svg>
+</div>
+</div>
+<div class="work-item reveal reveal-delay-1">
+<div class="work-category">UX Writing — App</div>
+<h3 class="work-title">Making error messages <em>almost</em> enjoyable</h3>
+<p class="work-desc">Rewrote 400+ interface strings for a meditation app. Support tickets dropped 28% in the quarter after launch.</p>
+<div class="work-arrow">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+<path d="M3 13L13 3M13 3H6M13 3v7"/>
+</svg>
+</div>
+</div>
+</div>
 </section>
 
 <!-- Testimonials -->
 <section class="testimonials">
-  <div class="testimonials-inner">
-    <div class="section-header">
-      <div>
-        <div class="section-label reveal">Kind words</div>
-        <h2 class="section-title reveal reveal-delay-1">What clients<br><em>actually say</em></h2>
-      </div>
-    </div>
-    <div class="testimonials-grid">
-      <div class="testimonial reveal">
-        <div class="testimonial-quote">"</div>
-        <p class="testimonial-text">The Fifth Draft didn't just write our copy — she found our voice. We've been using the guidelines she created for three years and it still feels fresh.</p>
-        <div class="testimonial-author">Priya Mehta, CEO</div>
-        <div class="testimonial-company">Lumio Financial</div>
-      </div>
-      <div class="testimonial reveal reveal-delay-1">
-        <div class="testimonial-quote">"</div>
-        <p class="testimonial-text">Working with her is genuinely different. She asks better questions than any agency we've used. The brief she wrote for us was better than the brief we gave her.</p>
-        <div class="testimonial-author">James Thornton, Marketing Director</div>
-        <div class="testimonial-company">Northfield Studio</div>
-      </div>
-      <div class="testimonial reveal reveal-delay-2">
-        <div class="testimonial-quote">"</div>
-        <p class="testimonial-text">I've worked with a lot of copywriters. She's the first I've trusted to just get on with it. No hand-holding required — and the results speak for themselves.</p>
-        <div class="testimonial-author">Sofia Andersen, Head of Brand</div>
-        <div class="testimonial-company">Aurel Collective</div>
-      </div>
-    </div>
-  </div>
+<div class="testimonials-inner">
+<div class="section-header">
+<div>
+<div class="section-label reveal">Kind words</div>
+<h2 class="section-title reveal reveal-delay-1">What clients<br><em>actually say</em></h2>
+</div>
+</div>
+<div class="testimonials-grid">
+<div class="testimonial reveal">
+<div class="testimonial-quote">"</div>
+<p class="testimonial-text">The Fifth Draft didn't just write our copy — she found our voice. We've been using the guidelines she created for three years and it still feels fresh.</p>
+<div class="testimonial-author">Priya Mehta, CEO</div>
+<div class="testimonial-company">Lumio Financial</div>
+</div>
+<div class="testimonial reveal reveal-delay-1">
+<div class="testimonial-quote">"</div>
+<p class="testimonial-text">Working with her is genuinely different. She asks better questions than any agency we've used. The brief she wrote for us was better than the brief we gave her.</p>
+<div class="testimonial-author">James Thornton, Marketing Director</div>
+<div class="testimonial-company">Northfield Studio</div>
+</div>
+<div class="testimonial reveal reveal-delay-2">
+<div class="testimonial-quote">"</div>
+<p class="testimonial-text">I've worked with a lot of copywriters. She's the first I've trusted to just get on with it. No hand-holding required — and the results speak for themselves.</p>
+<div class="testimonial-author">Sofia Andersen, Head of Brand</div>
+<div class="testimonial-company">Aurel Collective</div>
+</div>
+</div>
+</div>
 </section>
 
 <!-- Clients -->
 <div class="clients">
-  <div class="clients-label">Some of the brands I've written for</div>
-  <div class="clients-list">
-    <span class="client-name">Lumio</span>
-    <span class="client-name">Northfield</span>
-    <span class="client-name">Aurel</span>
-    <span class="client-name">Vestry & Co.</span>
-    <span class="client-name">Solent Health</span>
-    <span class="client-name">Faberwell</span>
-    <span class="client-name">Koda</span>
-  </div>
+<div class="clients-label">Some of the brands I've written for</div>
+<div class="clients-list">
+<span class="client-name">Lumio</span>
+<span class="client-name">Northfield</span>
+<span class="client-name">Aurel</span>
+<span class="client-name">Vestry & Co.</span>
+<span class="client-name">Solent Health</span>
+<span class="client-name">Faberwell</span>
+<span class="client-name">Koda</span>
+</div>
 </div>
 
 <!-- About -->
 <section class="about" id="about">
-  <div class="about-inner">
-    <div>
-      <div class="section-label reveal">About me</div>
-      <h2 class="section-title reveal reveal-delay-1">One writer.<br><em>Full attention.</em></h2>
-      <p class="about-text reveal reveal-delay-2">I'm a freelance copywriter who started The Fifth Draft in 2022 with a simple belief: that language is the most undervalued asset most businesses have. When you work with me, you get me — not a junior handed your brief, not an account manager playing telephone. Just a writer who cares obsessively about finding the right word, in the right order, for the right reason. I've written for startups and established brands, fintech and fashion, SaaS and retail. The sector changes. The standard doesn't.</p>
-    </div>
-    <div class="about-stats reveal">
-      <div class="stat">
-        <div class="stat-number">3<em>+</em></div>
-        <div class="stat-label">Years in practice</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">60<em>+</em></div>
-        <div class="stat-label">Brands written for</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">96<em>%</em></div>
-        <div class="stat-label">Client return rate</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">1</div>
-        <div class="stat-label">Writer. Always.</div>
-      </div>
-    </div>
-  </div>
+<div class="about-inner">
+<div>
+<div class="section-label reveal">About me</div>
+<h2 class="section-title reveal reveal-delay-1">One writer.<br><em>Full attention.</em></h2>
+<p class="about-text reveal reveal-delay-2">I'm a freelance copywriter who started The Fifth Draft in 2022 with a simple belief: that language is the most undervalued asset most businesses have. When you work with me, you get me — not a junior handed your brief, not an account manager playing telephone. Just a writer who cares obsessively about finding the right word, in the right order, for the right reason. I've written for startups and established brands, fintech and fashion, SaaS and retail. The sector changes. The standard doesn't.</p>
+</div>
+<div class="about-stats reveal">
+<div class="stat">
+<div class="stat-number">3<em>+</em></div>
+<div class="stat-label">Years in practice</div>
+</div>
+<div class="stat">
+<div class="stat-number">60<em>+</em></div>
+<div class="stat-label">Brands written for</div>
+</div>
+<div class="stat">
+<div class="stat-number">96<em>%</em></div>
+<div class="stat-label">Client return rate</div>
+</div>
+<div class="stat">
+<div class="stat-number">1</div>
+<div class="stat-label">Writer. Always.</div>
+</div>
+</div>
+</div>
 </section>
 
 <!-- CTA -->
 <section class="cta-section" id="contact">
-  <div class="cta-bg-text">Write.</div>
-  <div class="cta-inner">
-    <h2 class="cta-title reveal">Ready for your<br><em>fifth draft?</em></h2>
-    <p class="cta-sub reveal reveal-delay-1">Tell me about your project and I'll get back to you within one working day. No sales calls, no decks — just a conversation.</p>
-    <div class="cta-email reveal reveal-delay-2">
-      <input type="email" class="cta-input" placeholder="your@email.com">
-      <button class="cta-submit">Get in touch</button>
-    </div>
-  </div>
+<div class="cta-bg-text">Write.</div>
+<div class="cta-inner">
+<h2 class="cta-title reveal">Ready for your<br><em>fifth draft?</em></h2>
+<p class="cta-sub reveal reveal-delay-1">Tell me about your project and I'll get back to you within one working day. No sales calls, no decks — just a conversation.</p>
+<div class="cta-email reveal reveal-delay-2">
+<input type="email" class="cta-input" placeholder="your@email.com">
+<button class="cta-submit">Get in touch</button>
+</div>
+</div>
 </section>
 
 <!-- Footer -->
 <footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div>
-        <div class="footer-brand-name">The Fifth <em>Draft</em></div>
-        <p class="footer-tagline">A freelance copywriter who believes the best word is always worth waiting for.</p>
-      </div>
-      <div>
-        <div class="footer-col-title">Services</div>
-        <ul class="footer-links">
-          <li><a href="#">Brand Voice</a></li>
-          <li><a href="#">Website Copy</a></li>
-          <li><a href="#">Campaigns</a></li>
-          <li><a href="#">Email Copy</a></li>
-          <li><a href="#">UX Writing</a></li>
-          <li><a href="#">Strategy</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-col-title">Me</div>
-        <ul class="footer-links">
-          <li><a href="#">About</a></li>
-          <li><a href="#">Work</a></li>
-          <li><a href="#">Process</a></li>
-          <li><a href="#">Blog</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-col-title">Get in touch</div>
-        <ul class="footer-links">
-          <li><a href="#">hello@thefifthdraft.co</a></li>
-          <li><a href="#">+44 20 7946 0391</a></li>
-          <li style="margin-top: 1rem;"><a href="#">London</a></li>
-          <li><a href="#">New York</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">© 2025 The Fifth Draft. All rights reserved.</span>
-      <div class="footer-social">
-        <a href="#">LinkedIn</a>
-        <a href="#">Instagram</a>
-        <a href="#">Twitter</a>
-      </div>
-    </div>
-  </div>
+<div class="footer-inner">
+<div class="footer-top">
+<div>
+<div class="footer-brand-name">The Fifth <em>Draft</em></div>
+<p class="footer-tagline">A freelance copywriter who believes the best word is always worth waiting for.</p>
+</div>
+<div>
+<div class="footer-col-title">Services</div>
+<ul class="footer-links">
+<li><a href="#">Brand Voice</a></li>
+<li><a href="#">Website Copy</a></li>
+<li><a href="#">Campaigns</a></li>
+<li><a href="#">Email Copy</a></li>
+<li><a href="#">UX Writing</a></li>
+<li><a href="#">Strategy</a></li>
+</ul>
+</div>
+<div>
+<div class="footer-col-title">Me</div>
+<ul class="footer-links">
+<li><a href="#">About</a></li>
+<li><a href="#">Work</a></li>
+<li><a href="#">Process</a></li>
+<li><a href="#">Blog</a></li>
+</ul>
+</div>
+<div>
+<div class="footer-col-title">Get in touch</div>
+<ul class="footer-links">
+<li><a href="#">hello@thefifthdraft.co</a></li>
+<li><a href="#">+44 20 7946 0391</a></li>
+<li style="margin-top: 1rem;"><a href="#">London</a></li>
+<li><a href="#">New York</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<span class="footer-copy">© 2025 The Fifth Draft. All rights reserved.</span>
+<div class="footer-social">
+<a href="#">LinkedIn</a>
+<a href="#">Instagram</a>
+<a href="#">Twitter</a>
+</div>
+</div>
+</div>
 </footer>
 
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const trail = document.getElementById('cursor-trail');
-  let mx = 0, my = 0, tx = 0, ty = 0;
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx = 0, my = 0, tx = 0, ty = 0;
 
-  const darkSections = document.querySelectorAll('.process, .about, footer, .marquee-wrap');
-  const navLogo = document.querySelector('.nav-logo');
+const darkSections = document.querySelectorAll('.process, .about, footer, .marquee-wrap');
+const navLogo = document.querySelector('.nav-logo');
 
-  function isOverDark(x, y) {
-    for (const el of darkSections) {
-      const r = el.getBoundingClientRect();
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
-    }
-    return false;
-  }
+function isOverDark(x, y) {
+for (const el of darkSections) {
+const r = el.getBoundingClientRect();
+if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+}
+return false;
+}
 
-  function updateNavLogo() {
-    const logoRect = navLogo.getBoundingClientRect();
-    const logoCenterY = logoRect.top + logoRect.height / 2;
-    const logoCenterX = logoRect.left + logoRect.width / 2;
-    const onDark = isOverDark(logoCenterX, logoCenterY);
-    navLogo.classList.toggle('on-dark', onDark);
-  }
+function updateNavLogo() {
+const logoRect = navLogo.getBoundingClientRect();
+const logoCenterY = logoRect.top + logoRect.height / 2;
+const logoCenterX = logoRect.left + logoRect.width / 2;
+const onDark = isOverDark(logoCenterX, logoCenterY);
+navLogo.classList.toggle('on-dark', onDark);
+}
 
-  window.addEventListener('scroll', updateNavLogo, { passive: true });
-  updateNavLogo();
+window.addEventListener('scroll', updateNavLogo, { passive: true });
+updateNavLogo();
 
-  function isOverDark(x, y) {
-    for (const el of darkSections) {
-      const r = el.getBoundingClientRect();
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
-    }
-    return false;
-  }
+function isOverDark(x, y) {
+for (const el of darkSections) {
+const r = el.getBoundingClientRect();
+if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+}
+return false;
+}
 
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx + 'px';
-    cursor.style.top = my + 'px';
-    const dark = isOverDark(mx, my);
-    cursor.classList.toggle('light', dark);
-    trail.classList.toggle('light', dark);
-  });
+document.addEventListener('mousemove', e => {
+mx = e.clientX; my = e.clientY;
+cursor.style.left = mx + 'px';
+cursor.style.top = my + 'px';
+const dark = isOverDark(mx, my);
+cursor.classList.toggle('light', dark);
+trail.classList.toggle('light', dark);
+});
 
-  function animateTrail() {
-    tx += (mx - tx) * 0.15;
-    ty += (my - ty) * 0.15;
-    trail.style.left = tx + 'px';
-    trail.style.top = ty + 'px';
-    requestAnimationFrame(animateTrail);
-  }
-  animateTrail();
+function animateTrail() {
+tx += (mx - tx) * 0.15;
+ty += (my - ty) * 0.15;
+trail.style.left = tx + 'px';
+trail.style.top = ty + 'px';
+requestAnimationFrame(animateTrail);
+}
+animateTrail();
 
-  document.querySelectorAll('a, button, .work-item, .service-card, .client-name').forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-  });
+document.querySelectorAll('a, button, .work-item, .service-card, .client-name').forEach(el => {
+el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+});
 
-  // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  reveals.forEach(el => observer.observe(el));
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+entries.forEach(e => {
+if (e.isIntersecting) {
+e.target.classList.add('visible');
+observer.unobserve(e.target);
+}
+});
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
 
-  // Animated hero writing effect on lines
-  const lines = document.querySelectorAll('.draft-line');
-  lines.forEach((line, i) => {
-    // already handled by CSS
-  });
+// Animated hero writing effect on lines
+const lines = document.querySelectorAll('.draft-line');
+lines.forEach((line, i) => {
+// already handled by CSS
+});
 </script>
 </body>
 </html>
